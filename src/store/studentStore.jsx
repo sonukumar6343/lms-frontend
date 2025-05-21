@@ -529,7 +529,7 @@ const useStudentStore = create(
         set({ loading: true, error: null, successMessage: null });
         const { otpEmail } = get();
         try {
-          const res = await axiosInstance.post("/auth/verify-otp", {
+          const res = await axiosInstance.post("/v1/auth/verify-otp", {
             email: otpEmail,
             otp,
           });
