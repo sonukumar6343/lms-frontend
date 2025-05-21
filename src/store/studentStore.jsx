@@ -230,7 +230,6 @@
 
 // export default useStudentStore;
 
-
 // import { create } from 'zustand';
 // import { persist } from 'zustand/middleware';
 // import axiosInstance from '@/utils/axios';
@@ -469,15 +468,11 @@
 
 // export default useStudentStore;
 
-
-
-
-
 // store/studentStore.js
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import Cookies from 'js-cookie';
-import axiosInstance from '@/utils/axios';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axios";
 
 const cookieStorage = {
   getItem: (name) => {
@@ -492,7 +487,7 @@ const cookieStorage = {
     Cookies.set(name, JSON.stringify(value), {
       expires: 7,
       secure: true,
-      sameSite: 'Strict',
+      sameSite: "Strict",
     });
   },
   removeItem: (name) => {
@@ -513,8 +508,15 @@ const useStudentStore = create(
       loginStudent: async ({ email, password }) => {
         set({ loading: true, error: null, successMessage: null });
         try {
-          const res = await axiosInstance.post('/auth/login', { email, password });
-          set({ loading: false, otpEmail: email.trim(), successMessage: res.data.message });
+          const res = await axiosInstance.post("/v1/auth/login", {
+            email,
+            password,
+          });
+          set({
+            loading: false,
+            otpEmail: email.trim(),
+            successMessage: res.data.message,
+          });
           return res.data;
         } catch (err) {
           const msg = err.response?.data?.message || err.message;
@@ -527,12 +529,21 @@ const useStudentStore = create(
         set({ loading: true, error: null, successMessage: null });
         const { otpEmail } = get();
         try {
-          const res = await axiosInstance.post('/auth/verify-otp', { email: otpEmail, otp });
+          const res = await axiosInstance.post("/auth/verify-otp", {
+            email: otpEmail,
+            otp,
+          });
           const { token, user } = res.data;
           // console.log(res.data,"otp ressssssssssssssssss");
-          
-          Cookies.set('token', token, { expires: 7 });
-          set({ loading: false, token, currentStudent: user, otpEmail: null, successMessage: res.data.message });
+
+          Cookies.set("token", token, { expires: 7 });
+          set({
+            loading: false,
+            token,
+            currentStudent: user,
+            otpEmail: null,
+            successMessage: res.data.message,
+          });
           return res.data;
         } catch (err) {
           const msg = err.response?.data?.message || err.message;
@@ -540,17 +551,25 @@ const useStudentStore = create(
           throw new Error(msg);
         }
       },
-
       logout: () => {
-        set({ currentStudent: null, token: null, otpEmail: null, error: null, successMessage: null });
-        Cookies.remove('token');
-        cookieStorage.removeItem('student-storage');
+        set({
+          currentStudent: null,
+          token: null,
+          otpEmail: null,
+          error: null,
+          successMessage: null,
+        });
+        Cookies.remove("token");
+        cookieStorage.removeItem("student-storage");
       },
     }),
     {
-      name: 'student-storage',
+      name: "student-storage",
       storage: cookieStorage,
-      partialize: (state) => ({ token: state.token, currentStudent: state.currentStudent }),
+      partialize: (state) => ({
+        token: state.token,
+        currentStudent: state.currentStudent,
+      }),
     }
   )
 );
